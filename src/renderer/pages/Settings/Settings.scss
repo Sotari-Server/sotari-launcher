@@ -1,0 +1,28 @@
+.Settings {
+  .number-input {
+    width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    input {
+      background: var(--background-accent);
+      color: white;
+      display: block;
+      justify-content: center;
+      align-items: center;
+      height: 35px;
+      width: 50px;
+      border: none;
+      outline: none;
+      border-radius: 7px;
+      //remove increase input for default style input number
+      -moz-appearance: textfield;
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+      }
+      text-align: center;
+    }
+  }
+}

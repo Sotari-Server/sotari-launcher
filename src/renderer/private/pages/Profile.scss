@@ -1,0 +1,32 @@
+.profile {
+  padding: 50px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  gap: 20px;
+
+  .user {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    .img-input {
+      img {
+        border-radius: 15px;
+        width: 100px;
+        height: 100px;
+      }
+      button {
+        height: 30px;
+        width: 30px;
+        font-size: 20px;
+        position: relative;
+        top: -22px;
+        left: 80px;
+      }
+    }
+  }
+}

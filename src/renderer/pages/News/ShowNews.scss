@@ -1,0 +1,17 @@
+.show-news {
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 30px;
+  background: rgb(37, 37, 37);
+  height: 80vh;
+  width: 70vw;
+  padding: 20px;
+  border-radius: 10px;
+  img {
+    width: 80%;
+    border-radius: 10px;
+  }
+}

@@ -1,0 +1,37 @@
+@keyframes dot-start {
+  0% {
+    transform: translateX(43.5px) scale(0.1);
+  }
+  100% {
+    transform: translateX(43.5px) scale(1);
+  }
+}
+
+nav {
+  z-index: 10;
+  height: 100vh;
+  min-width: 100px;
+  background: rgba(0, 0, 0, 0.396);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  filter: brightness(1.4);
+
+  a.active {
+    button {
+      .dot {
+        animation: 0.3s ease-out 0s 1 dot-start;
+        height: 25px;
+        width: 7px;
+        border-radius: 10px 0 0 10px;
+        background: var(--accent);
+        margin-left: 5px;
+        position: absolute;
+        transform: translateX(43.5px);
+      }
+    }
+  }
+}

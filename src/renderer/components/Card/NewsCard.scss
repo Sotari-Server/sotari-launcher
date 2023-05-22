@@ -1,0 +1,28 @@
+.news-card {
+  min-height: 240px;
+  min-width: 330px;
+  max-height: 240px;
+  max-width: 330px;
+  background: rgb(34, 34, 34);
+  border-radius: 10px;
+
+  filter: brightness(0.9);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  padding: 20px;
+
+  img {
+    max-width: 100%;
+    max-height: 140px;
+    border-radius: 10px;
+  }
+
+  &:hover {
+    transform: scale(1.07);
+    filter: brightness(1.2);
+  }
+}

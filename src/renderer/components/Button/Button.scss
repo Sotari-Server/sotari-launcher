@@ -1,0 +1,32 @@
+.ButtonSquare {
+  margin: 10px;
+  height: 75px;
+  width: 75px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: black;
+  border-radius: 15px;
+  border: none;
+  outline: none;
+  color: rgb(91, 91, 91);
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 3em;
+  &:hover {
+    filter: brightness(1.2);
+    color: white;
+    background: var(--background-accent);
+    img {
+      height: 60px;
+      width: 60px;
+    }
+  }
+
+  img {
+    transition: all 0.3s;
+    height: 60px;
+    width: 60px;
+    border-radius: 10px;
+  }
+}

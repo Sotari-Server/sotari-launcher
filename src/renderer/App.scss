@@ -1,0 +1,122 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+
+  --background-accent: #15001b;
+  --accent: #dd00ff;
+  --secondary-accent: #860086;
+}
+
+body {
+  overflow: hidden;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  height: 45px;
+  width: 135px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--accent);
+  border-radius: 7px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1.5em;
+  color: white;
+  &:hover {
+    background: var(--secondary-accent);
+  }
+}
+
+.App {
+  display: flex;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background: url('../../assets/background.webp') no-repeat center center fixed;
+  background-size: cover;
+  // bottom shadow
+  &::after {
+    content: '';
+    z-index: 0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 200px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 90%);
+  }
+}
+
+.accent {
+  color: var(--accent);
+}
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateY(10%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page {
+  animation: 0.4s ease-out 0s 1 slideInFromLeft;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
+  padding-left: 50px;
+  z-index: 10;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 10px;
+  border-radius: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f100;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #2d2d2d;
+  width: 5px;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
