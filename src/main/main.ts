@@ -10,33 +10,15 @@ import { exec } from 'child_process';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import fp from 'find-free-port';
-import { downloadAssets } from './utils/fetch';
 import { addLog, addRenderProcessLog } from './utils/tools';
-
-// check platform
-const isMac = process.platform === 'darwin';
-const isWindows = process.platform === 'win32';
-const isLinux = process.platform === 'linux';
-addLog('Platform', 'test');
-export let launcherDir: string;
-let javaPath: string;
-
-if (isLinux) {
-  launcherDir = path.join(app.getPath('home'), '.local', 'share', 'sotari');
-  javaPath = path.join(launcherDir, 'runtime', 'jre-11', 'bin', 'java');
-} else if (isWindows) {
-  launcherDir = path.join(app.getPath('appData'), 'sotari');
-  javaPath = path.join(launcherDir, 'runtime', 'jre-11', 'bin', 'java.exe');
-} else if (isMac) {
-  launcherDir = path.join(app.getPath('appData'), 'sotari');
-  javaPath = path.join(launcherDir, 'runtime', 'jre-11', 'bin', 'java');
-} else {
-  addLog('Platform not supported', process.platform);
-  launcherDir = path.join(app.getPath('appData'), 'sotari');
-  javaPath = path.join(launcherDir, 'runtime', 'jre-11', 'bin', 'java');
-}
-
-// java path
+import {
+  isLinux,
+  isMac,
+  isWindows,
+  javaPath,
+  launcherDir,
+} from './utils/const';
+import { startIpc } from './ipc/update';
 
 const server = express();
 server.use(cors());
@@ -50,7 +32,7 @@ class AppUpdater {
   }
 }
 
-let mainWindow: BrowserWindow | null = null;
+export let mainWindow: BrowserWindow | null = null;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -76,6 +58,7 @@ const installExtensions = async () => {
     )
     .catch(console.log);
 };
+
 const createWindow = async () => {
   if (isDebug) {
     await installExtensions();
@@ -90,12 +73,12 @@ const createWindow = async () => {
   };
 
   mainWindow = new BrowserWindow({
-    show: false,
     width: 1280,
     height: 720,
     minHeight: 720,
     minWidth: 1280,
     icon: getAssetPath('logo.png'),
+
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
@@ -158,27 +141,8 @@ app
     });
   })
   .catch(console.log);
-
-ipcMain.on('check-update', async (event, arg) => {
-  // get app version
-  const appVersion = app.getVersion();
-  const jsonInfoUrl = isWindows
-    ? 'https://sotari.eu/sotari-files/launcher/windows/info.json'
-    : isLinux
-    ? 'https://sotari.eu/sotari-files/launcher/linux/info.json'
-    : 'https://sotari.eu/sotari-files/launcher/mac/info.json';
-  let jsonInfo;
-  try {
-    jsonInfo = await fetch(jsonInfoUrl).then((res) => res.json());
-  } catch (e) {
-    addLog('Error fetching jsonInfo', e);
-  }
-
-  if (jsonInfo.version !== appVersion) {
-    mainWindow?.webContents.send('update-available', jsonInfo.version);
-  }
-});
-
+// verifie si l'appli est a jour
+startIpc();
 ipcMain.on('add-log', async (event, arg) => {
   addRenderProcessLog(arg[0], arg[1]);
 });
@@ -224,25 +188,13 @@ ipcMain.on('save-json-settings', async (event, arg) => {
   event.reply('save-json-settings', 'success');
 });
 
-ipcMain.on('download-java', async (event, arg) => {
-  let dirPath;
-  if (isWindows) {
-    dirPath = path.join(app.getPath('appData'), 'sotari');
-    await downloadAssets(dirPath, 'win32');
-  } else if (isLinux) {
-    dirPath = path.join(app.getPath('home'), '.local', 'share', 'sotari');
-    await downloadAssets(dirPath, 'linux');
-  } else if (isMac) {
-    dirPath = path.join(app.getPath('appData'), 'sotari');
-    await downloadAssets(dirPath, 'darwin');
-  }
-  mainWindow?.webContents.send('java-ok', 'ok');
-});
-
 ipcMain.on('play', async (event, arg) => {
   console.log('play');
   event.reply('okey');
 });
+
+console.log('testPath', app.getPath('exe'));
+// liste les fichier assets
 
 (async () => {
   const port = await fp(3000, 3100);
@@ -253,16 +205,17 @@ ipcMain.on('play', async (event, arg) => {
       launcherDir,
       'data',
       'utils',
-
       'SotariMinecraftUpdater.jar'
     );
     console.log(`${javaPath} -jar ${downloaderPath} ${port[0]}`);
-    exec(`chmod +x ${javaPath}`);
+    isLinux && exec(`chmod +x ${downloaderPath}`);
+    console.log(`${javaPath} -jar ${downloaderPath} ${port[0]}`);
     const child = exec(`${javaPath} -jar ${downloaderPath} ${port[0]}`);
     event.reply('download-assets', 'started');
   });
 
   server.get('/:name', async (req: Request, res: Response) => {
+    console.log(req.params.name);
     mainWindow?.webContents.send('step', req.params.name);
     res.send('true');
   });

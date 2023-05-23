@@ -15,6 +15,7 @@ import AppContextProvider from './context/AppContext';
 import { useEffect, useState } from 'react';
 import day from 'dayjs';
 import LoaderCircle from './components/Loader/LoaderCircle';
+import Toast from './components/Toast/Toast';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,9 +44,9 @@ function App() {
 
   useEffect(() => {
     window.setTimeout(() => {}, 1000);
-    window.electron.ipcRenderer.sendMessage('check-update');
+
     window.electron.ipcRenderer.on('update-available', () => {
-      alert('Update available');
+      sendToast(8000, 'update available');
     });
 
     window.electron.ipcRenderer.on('step', (params) => {
@@ -55,10 +56,12 @@ function App() {
       setProgress(params);
     });
 
-    window.electron.ipcRenderer.sendMessage('download-java');
+    window.electron.ipcRenderer.sendMessage('download-java', {});
 
     window.electron.ipcRenderer.on('java-ok', () => {
       setCheckJava(true);
+      window.electron.ipcRenderer.sendMessage('download-utils');
+      window.electron.ipcRenderer.sendMessage('check-update');
     });
   }, []);
 
@@ -69,8 +72,23 @@ function App() {
       localStorage.setItem('date-update', day().format('DD/MM/YYYY/HH'));
     }
   }, [step]);
+  const [isToast, setIsToast] = useState({
+    open: false,
+    message: '',
+  });
+
+  const sendToast = (time, message) => {
+    setIsToast({
+      ...isToast,
+      open: true,
+      message: message,
+    });
+    window.setTimeout(() => setIsToast({ ...isToast, open: false }), time);
+  };
+
   return (
     <div className="App">
+      <Toast start={isToast.open} message={isToast.message} />
       <QueryClientProvider client={queryClient}>
         {!checkJava && <LoaderCircle />}
         <HashRouter>

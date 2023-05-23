@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from 'react';
 
-const appContext = createContext();
+export const appContext = createContext();
 
 const AppContextProvider = ({ children }) => {
   const [ram, setRam] = useState(3);
@@ -10,7 +10,9 @@ const AppContextProvider = ({ children }) => {
     });
   }, [ram]);
   return (
-    <appContext.Provider value={(ram, setRam)}>{children}</appContext.Provider>
+    <appContext.Provider value={{ ram, setRam }}>
+      {children}
+    </appContext.Provider>
   );
 };
 
