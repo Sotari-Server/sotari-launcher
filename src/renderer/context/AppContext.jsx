@@ -6,7 +6,7 @@ const AppContextProvider = ({ children }) => {
   const [ram, setRam] = useState(3);
   useEffect(() => {
     window.electron.ipcRenderer.sendMessage('save-json-settings', {
-      ram: ram,
+      ram: JSON.stringify(ram),
     });
   }, [ram]);
   return (

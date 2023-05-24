@@ -43,10 +43,19 @@ function App() {
   const [inDownload, setInDownload] = useState(false);
 
   useEffect(() => {
-    window.setTimeout(() => {}, 1000);
+    window.addEventListener('online', () => {
+      sendToast(3000, 'You are online');
+    });
+    window.addEventListener('offline', () => {
+      sendToast(3000, 'You are offline');
+    });
 
     window.electron.ipcRenderer.on('update-available', () => {
-      sendToast(8000, 'update available');
+      sendToast(8000, 'update available', 'update');
+    });
+
+    window.electron.ipcRenderer.on('notify', (event, arg) => {
+      sendToast(2000, arg.message);
     });
 
     window.electron.ipcRenderer.on('step', (params) => {
@@ -59,16 +68,22 @@ function App() {
     window.electron.ipcRenderer.sendMessage('download-java', {});
 
     window.electron.ipcRenderer.on('java-ok', () => {
+      console.log('receipt java ok');
       setCheckJava(true);
       window.electron.ipcRenderer.sendMessage('download-utils');
+
       window.electron.ipcRenderer.sendMessage('check-update');
+    });
+    window.electron.ipcRenderer.on('utils-ok', () => {
+      console.log('update');
+      setIsUpdate(true);
     });
   }, []);
 
   useEffect(() => {
     if (step === 'END') {
       setInDownload(false);
-      setIsUpdate(true);
+
       localStorage.setItem('date-update', day().format('DD/MM/YYYY/HH'));
     }
   }, [step]);
@@ -77,18 +92,24 @@ function App() {
     message: '',
   });
 
-  const sendToast = (time, message) => {
+  const sendToast = (time, message, button) => {
+    console.log(button);
     setIsToast({
       ...isToast,
       open: true,
       message: message,
+      button: button ? button : null,
     });
     window.setTimeout(() => setIsToast({ ...isToast, open: false }), time);
   };
 
   return (
     <div className="App">
-      <Toast start={isToast.open} message={isToast.message} />
+      <Toast
+        start={isToast.open}
+        message={isToast.message}
+        button={isToast.button}
+      />
       <QueryClientProvider client={queryClient}>
         {!checkJava && <LoaderCircle />}
         <HashRouter>

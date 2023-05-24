@@ -10,14 +10,8 @@ import { exec } from 'child_process';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import fp from 'find-free-port';
-import { addLog, addRenderProcessLog } from './utils/tools';
-import {
-  isLinux,
-  isMac,
-  isWindows,
-  javaPath,
-  launcherDir,
-} from './utils/const';
+import { addLog, addRenderProcessLog, downloadAssets } from './utils/tools';
+import { isLinux, javaPath, launcherDir, platform } from './utils/const';
 import { startIpc } from './ipc/update';
 
 const server = express();
@@ -32,7 +26,7 @@ class AppUpdater {
   }
 }
 
-export let mainWindow: BrowserWindow | null = null;
+let mainWindow: BrowserWindow | null = null;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -173,8 +167,6 @@ ipcMain.on('save-json-settings', async (event, arg) => {
   const readFile = promisify(fs.readFile);
   // if linux
   let filePath = path.join(launcherDir, 'data', 'json', 'settings.json');
-
-  console.log(filePath);
   const user = arg;
 
   // create file if not exists
@@ -190,12 +182,21 @@ ipcMain.on('save-json-settings', async (event, arg) => {
 
 ipcMain.on('play', async (event, arg) => {
   console.log('play');
+  const launcherPath = path.join(
+    launcherDir,
+    'data',
+    'utils',
+    'SotariMinecraftLauncher.jar'
+  );
+  isLinux && exec(`chmod +x ${launcherPath}`);
+  const child = exec(`${javaPath} -jar ${launcherPath}`);
   event.reply('okey');
 });
+ipcMain.on('download-java', async () => {
+  await downloadAssets(launcherDir, platform);
 
-console.log('testPath', app.getPath('exe'));
-// liste les fichier assets
-
+  mainWindow?.webContents.send('java-ok');
+});
 (async () => {
   const port = await fp(3000, 3100);
   console.log(port[0]);
@@ -232,3 +233,5 @@ console.log('testPath', app.getPath('exe'));
     console.log(`Example app listening at http://localhost:${port}`);
   });
 })();
+
+export default mainWindow;

@@ -65,6 +65,7 @@ export async function downloadAssets(launcherPath, platform) {
     addLog('downloadAssets,', { message: 'Platform not supported' + platform });
     return;
   }
+  console.log(response.files.slice(0, 8));
   if (response.files) {
     await response.files.forEach(async (file) => {
       const downloadUrl = file.downloadURL;

@@ -1,14 +1,15 @@
 import { app, ipcMain } from 'electron';
-import { mainWindow } from '../main';
-import { isLinux, isWindows, launcherDir, platform } from '../utils/const';
-import { addLog, downloadAssets, downloadFile } from '../utils/tools';
+import { isLinux, isWindows, launcherDir } from '../utils/const';
+import { addLog, downloadFile } from '../utils/tools';
 import path from 'path';
+import mainWindow from '../main';
+import fs from 'fs';
 
 export function startIpc() {
   /*-------------------------------------
               Check Update
   -------------------------------------*/
-  ipcMain.on('check-update', async (event, arg) => {
+  ipcMain.on('check-update', async () => {
     const appVersion = app.getVersion();
 
     const jsonInfoUrl = isWindows
@@ -29,22 +30,27 @@ export function startIpc() {
   });
 
   /*-------------------------------------
-              Download Java
-  -------------------------------------*/
-  ipcMain.on('download-java', async (event, arg) => {
-    console.log('ipc: download-java');
-    await downloadAssets(launcherDir, platform);
-    mainWindow?.webContents.send('java-ok', 'ok');
-  });
-
-  /*-------------------------------------
          donwload all utils programm
   -------------------------------------*/
-  ipcMain.on('download-utils', async (event, arg) => {
-    await downloadFile(
-      path.join(launcherDir, 'data', 'utils', 'SotariMinecraftUpdater.jar'),
-      'http://sotari.eu/sotari-files/utils/SotariMinecraftUpdater.jar'
-    );
+  ipcMain.on('download-utils', async () => {
+    console.log('download utils');
+
+    !fs.existsSync(
+      path.join(launcherDir, 'data', 'utils', 'SotariMinecraftUpdater.jar')
+    ) &&
+      (await downloadFile(
+        path.join(launcherDir, 'data', 'utils', 'SotariMinecraftUpdater.jar'),
+        'http://sotari.eu/sotari-files/utils/SotariMinecraftUpdater.jar'
+      ));
+
+    !fs.existsSync(
+      path.join(launcherDir, 'data', 'utils', 'SotariMinecraftUpdater.jar')
+    ) &&
+      (await downloadFile(
+        path.join(launcherDir, 'data', 'utils', 'SotariMinecraftLauncher.jar'),
+        'http://sotari.eu/sotari-files/utils/SotariMinecraftLauncher.jar'
+      ));
+    console.log('sned utils -ok');
     mainWindow?.webContents.send('utils-ok', 'ok');
   });
 }
